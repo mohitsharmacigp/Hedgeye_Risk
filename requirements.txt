@@ -1,0 +1,6 @@
+beautifulsoup4==4.12.2
+pandas==2.1.4
+pywin32==306
+openpyxl==3.1.2
+lxml==4.9.3
+python-dateutil==2.8.2
