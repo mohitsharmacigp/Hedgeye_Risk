@@ -1,32 +1,44 @@
-name: Scheduled Workflow
+name: Scheduled Daily Task
 
 on:
   schedule:
+    # Runs at 9:00 PM UTC every day
     - cron: '0 13 * * 1-5'
-  # Add this to enable manual triggering
+    
+  # Allow manual trigger from GitHub UI
   workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Environment to run against'
-        required: true
-        default: 'test'
-        type: choice
-        options:
-        - test
-        - staging
-        - production
-
 
 jobs:
-  run-main-branch:
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+  scheduled-task:
+    runs-on: windows-latest
+    
     steps:
-      - name: Checkout main branch
-        uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch all history for proper versioning
+    
+    - name: Set up Python (if your script needs Python)
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+    
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt  # if you have requirements.txt
+        # Add any other dependency installation commands
+    
+    - name: Run your scheduled script
+      run: |
+        # Run your main script here
+        python hedgeye_code.py
 
-      - name: Run your script
-        run: |
-          echo "Running scheduled job on main branch at 9 PM"
-          # Add your commands here
-
+    
+    - name: Commit and push changes (if your script generates files)
+      if: success()
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add Raw.xlsx
+        git diff --quiet && git diff --staged --quiet || git commit -m "Auto-update: $(date)"
+        git push
